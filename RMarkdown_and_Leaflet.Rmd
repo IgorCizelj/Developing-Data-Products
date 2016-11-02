@@ -1,0 +1,63 @@
+---
+title: "Southeast Asia Maps"
+author: "Igor Cizelj, PhD"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+---
+
+
+```{r Initialize, echo=FALSE,warning=FALSE,message=FALSE,results='hide'}
+#-------------------------------------------------------------------------------
+library(ggplot2,quietly=TRUE,warn.conflicts=FALSE)
+library(ggmap,quietly=TRUE,warn.conflicts=FALSE) 
+library(RODBC,quietly=TRUE,warn.conflicts=FALSE)
+library(xlsx,quietly=TRUE,warn.conflicts=FALSE)
+library(knitr,quietly=TRUE,warn.conflicts=FALSE)
+library(rgl,quietly=TRUE,warn.conflicts=FALSE)
+library(rgdal,quietly=TRUE,warn.conflicts=FALSE)
+library(maptools,quietly=TRUE,warn.conflicts=FALSE)
+library(rgeos,quietly=TRUE,warn.conflicts=FALSE)
+library(sp,quietly=TRUE,warn.conflicts=FALSE)
+library(RColorBrewer,quietly=TRUE,warn.conflicts=FALSE)
+library(leaflet,quietly=TRUE,warn.conflicts=FALSE)
+library(maps,quietly=TRUE,warn.conflicts=FALSE)
+
+
+work.folder<-"//isfilesv1/coreproducts/ModelTesting2016/M54/MAPS"
+shp.folder<-"//isfilesv1/coreproducts/ModelTesting2016/M54/MAPS/SHP_FILES"
+geojson.folder<-"//isfilesv1/coreproducts/ModelTesting2016/M54/MAPS/GEOJSON_FILES"
+map.folder<-"//isfilesv1/coreproducts/ModelTesting2016/M54/MAPS/MAP_FILES"
+setwd(work.folder)
+#-------------------------------------------------------------------------------
+```
+
+
+```{r ImportShapeFiles, echo=FALSE,warning=FALSE,message=FALSE,results='hide'}
+#SHP Files
+#-------------------------------------------------------------------------------
+HongKong_SHP <- readOGR(dsn=shp.folder,layer="HongKong")
+Taiwan_SHP  <- readOGR(dsn=shp.folder,layer="Taiwan")
+#-------------------------------------------------------------------------------
+```
+
+```{r CreateLeafletMap,message=FALSE,comment="#",echo=FALSE,results='asis', fig.width=12,fig.height=8, fig.align='center', eval=TRUE}                   
+# leaflet
+#-------------------------------------------------------------------------------
+m <- leaflet()
+
+m <- addProviderTiles(map = m, provider = "Stamen.TonerLite", group = "Toner Lite")
+m <- addTiles(map = m, group = "OSM")
+m <- addProviderTiles(map = m, provider = "CartoDB.DarkMatter", group = "CartoDB")
+
+
+m <- addPolygons(map=m, data=HongKong_SHP,color = "#c51b7d", fill = TRUE, fillOpacity = 0.9,  weight = 2, group = "HongKong")
+m <- addPolygons(map=m, data=Taiwan_SHP,color = "#f1b6da", fill = TRUE, fillOpacity = 0.9,  weight = 2, group = "Taiwan")
+
+
+m <- addLayersControl(map = m, baseGroups = c("OSM","Toner Lite","CartoDB"), overlayGroups = c("HongKong","Taiwan"),options = layersControlOptions(collapsed = FALSE))
+
+m
+#-------------------------------------------------------------------------------
+```
